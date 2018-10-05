@@ -2,7 +2,7 @@ from __future__ import print_function
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
-
+import time
 
 from lxml import etree
 import datetime
@@ -22,24 +22,26 @@ def lesson2event(lessons):
     for time_slice in lessons:
         for i in range(len(time_slice)):
             les = time_slice[i]
+
             print(les)
             if not les:
                 break
-            for i in range(0, len(les), 5):
-                event['summary'] = les[i + 0]
-                event['attendees'].append(
-                    {'email': les[i + 1].replace(',', '+') + '@heu'})
-                event['location'] = les[i + 4]
+            for j in range(0, len(les), 5):
+                event['summary'] = les[j + 0]
+                event['description'] = les[j + 1]
+                # event['attendees'] = [
+                # {'email': les[j + 1].replace(',', '+') + '@heu'}]
+                event['location'] = les[j + 4]
 
                 # time
-                tem = [int(x) for x in les[i + 3][1:-2].split('-')]
+                tem = [int(x) for x in les[j + 3][1:-2].split('-')]
                 start, end = tem[0], tem[-1]
                 start_time = lesson_time[start][0]
                 end_time = lesson_time[end][1]
                 # event['summary']=summary
 
                 # week
-                weeks = les[i + 2][:-3].split(',')
+                weeks = les[j + 2][:-3].split(',')
                 all_weeks = []
                 for week in weeks:
                     tem = week.split('-')  # 取名真头疼
@@ -56,8 +58,11 @@ def lesson2event(lessons):
                         date) + 'T' + start_time + '+08:00'
                     event['end']['dateTime'] = str(
                         date) + 'T' + end_time + '+08:00'
-                    # service.events().insert(calendarId='primary', body=event).execute()
+                    service.events().insert(calendarId='primary', body=event).execute()
+                    time.sleep(10)
+
                 print(event)
+                time.sleep(60)
 
             # ============
 
@@ -111,11 +116,11 @@ for tr in trs[1:6]:
 # event['summary']='google'
 # print(event)
 
-# store = file.Storage('token.json')
-# creds = store.get()
-# if not creds or creds.invalid:
-#     flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
-#     creds = tools.run_flow(flow, store)
-# service = build('calendar', 'v3', http=creds.authorize(Http()))
+store = file.Storage('token.json')
+creds = store.get()
+if not creds or creds.invalid:
+    flow = client.flow_from_clientsecrets('credentials.json', SCOPES)
+    creds = tools.run_flow(flow, store)
+service = build('calendar', 'v3', http=creds.authorize(Http()))
 
 lesson2event(lessons)
