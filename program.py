@@ -22,15 +22,16 @@ def lesson2event(lessons):
     for time_slice in lessons:
         for i in range(len(time_slice)):
             les = time_slice[i]
-
+            
             print(les)
             if not les:
-                break
+                # break
+                continue
             for j in range(0, len(les), 5):
                 event['summary'] = les[j + 0]
                 event['description'] = les[j + 1]
                 # event['attendees'] = [
-                # {'email': les[j + 1].replace(',', '+') + '@heu'}]
+                    # {'email': les[j + 1].replace(',', '+') + '@heu'}]
                 event['location'] = les[j + 4]
 
                 # time
@@ -60,7 +61,7 @@ def lesson2event(lessons):
                         date) + 'T' + end_time + '+08:00'
                     service.events().insert(calendarId='primary', body=event).execute()
                     time.sleep(10)
-
+                
                 print(event)
                 time.sleep(60)
 
@@ -105,6 +106,7 @@ for tr in trs[1:6]:
 
     lessons.append(time_slice)
 
+# print(lessons)
 
 # for time_slice in lessons:
 #     for lesson in time_slice:
@@ -124,3 +126,4 @@ if not creds or creds.invalid:
 service = build('calendar', 'v3', http=creds.authorize(Http()))
 
 lesson2event(lessons)
+
